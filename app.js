@@ -3,6 +3,7 @@ $(function () {
   var Product = Backbone.Model.extend({
     defaults: {
       name: "",
+      description: "",
       price: 0,
       image: "",
     },
@@ -37,21 +38,18 @@ $(function () {
   var ProductItemView = Backbone.View.extend({
     tagName: "li",
     template: _.template(`
-  <div style="display: flex; align-items: center; justify-content: space-between; background-color: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+  <div class="product-item">
     <div style="display: flex; align-items: center;">
-      <img src="<%- image %>" width="50" style="border-radius: 5px; margin-right: 15px;">
-      <div style="flex-grow: 1; color: #333;">
-        <strong style="font-size: 16px; color: #007bff;"><%- name %></strong><br>
-        <span style="font-size: 14px; color: #555;">Php<%- price %></span>
+      <img src="<%- image %>">
+      <div style="flex-grow: 1;">
+        <strong><%- name %></strong><br>
+        <span><%- description %></span><br>
+        <span>Php <%- price %></span>
       </div>
     </div>
-    <div style="display: flex; align-items: center;">
-      <button class="edit" style="background-color: #007bff; color: white; border: none; padding: 8px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; margin-right: 8px;">
-        Edit
-      </button>
-      <button class="delete" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;">
-        Delete
-      </button>
+    <div>
+      <button class="edit">Edit</button>
+      <button class="delete">Delete</button>
     </div>
   </div>
 `),
@@ -78,36 +76,46 @@ $(function () {
 
   // Product Form View (Add/Edit Product)
   var ProductFormView = Backbone.View.extend({
-    el: "#app",
+    tagName: "div",
+    className: "page",
 
     template: _.template(`
-  <h2 style="text-align: center; color: #333; margin-top: 30px;"><%- editing ? "Edit" : "Add" %> Product</h2>
-  <div style="background-color: #fff; width: 100%; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <form>
-      <div style="margin-bottom: 15px;">
-        <label for="name" style="font-size: 14px; color: #555; display: block;">Name:</label>
-        <input type="text" id="name" value="<%- name %>" placeholder="Enter product name" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label for="price" style="font-size: 14px; color: #555; display: block;">Price:</label>
-        <input type="number" id="price" value="<%- price %>" placeholder="Enter product price" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label for="image" style="font-size: 14px; color: #555; display: block;">Image URL:</label>
-        <input type="text" id="image" value="<%- image %>" placeholder="Enter image URL" style="width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
-      </div>
-      <button id="save" style="background-color: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; width: 100%; cursor: pointer; transition: background-color 0.3s ease;">Save</button>
-    </form>
-    <a href="#products" style="display: inline-block; margin-top: 20px; text-align: center; color: #007bff; font-size: 14px; text-decoration: none;">Back</a>
-  </div>
-`),
+<div class="form-container">
+  <h2><%- editing ? "Edit" : "Add" %> Product</h2>
+  <form>
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" value="<%- name %>" placeholder="Enter product name" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Description:</label>
+      <input type="text" id="description" value="<%- description %>" placeholder="Enter product description">
+    </div>
+    <div class="form-group">
+      <label for="price">Price:</label>
+      <input type="number" id="price" value="<%- price %>" placeholder="Enter product price" required>
+    </div>
+    <div class="form-group">
+      <label for="imageFile">Upload Image:</label>
+      <input type="file" id="imageFile" accept="image/*" <%- editing ? "" : "required" %>>
+    </div>
+    <div class="form-group">
+      <img id="imagePreview" src="<%- image %>" style="max-width:200px; margin-top:10px; display:<%- image ? 'block' : 'none' %>;">
+    </div>
+    <button id="save">Save</button>
+  </form>
+  <a href="#products" class="back-link">Back</a>
+</div>
+  `),
 
     events: {
+      "change #imageFile": "previewImage",
       "click #save": "saveProduct",
     },
 
     initialize: function () {
-      this.editing = this.model ? true : false;
+      this.editing = !!this.model;
+      this.uploadedImage = this.model ? this.model.get("image") : null;
       this.render();
     },
 
@@ -118,35 +126,72 @@ $(function () {
             ? {
                 editing: true,
                 name: this.model.get("name"),
+                description: this.model.get("description"),
                 price: this.model.get("price"),
                 image: this.model.get("image"),
               }
-            : { editing: false, name: "", price: "", image: "" }
+            : {
+                editing: false,
+                name: "",
+                description: "",
+                price: "",
+                image: "",
+              }
         )
       );
+
+      if (!this.editing) {
+        this.$("#imageFile").val("");
+        this.$("#imagePreview").hide().attr("src", "");
+        this.uploadedImage = null;
+      }
+    },
+
+    previewImage: function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        this.uploadedImage = event.target.result;
+        this.$("#imagePreview").attr("src", this.uploadedImage).show();
+      };
+      reader.readAsDataURL(file);
     },
 
     saveProduct: function (e) {
       e.preventDefault();
-      var data = {
-        name: this.$("#name").val(),
-        price: parseFloat(this.$("#price").val()),
-        image: this.$("#image").val(),
+
+      const name = this.$("#name").val().trim();
+      const price = parseFloat(this.$("#price").val());
+
+      if (!name || !price || (!this.uploadedImage && !this.editing)) {
+        alert("Product name, price, and image are required!");
+        return;
+      }
+
+      const data = {
+        name: name,
+        description: this.$("#description").val().trim(),
+        price: price,
+        image:
+          this.uploadedImage || (this.model ? this.model.get("image") : ""),
       };
 
       if (this.editing) {
-        this.model.set(data).save(); // If editing, update the product
+        this.model.set(data).save();
       } else {
-        Products.create(data); // If adding, create a new product
+        Products.create(data);
       }
 
-      location.hash = "#products"; // Redirect back to the products list
+      location.hash = "#products";
     },
   });
 
   // Product List View
   var ProductListView = Backbone.View.extend({
-    el: "#app",
+    tagName: "div",
+    className: "page",
     initialize: function () {
       Products.fetch();
       this.render();
@@ -168,6 +213,7 @@ $(function () {
 
       this.$el.html(html);
       var ul = this.$("#product-list");
+      ul.empty();
 
       Products.each(function (product) {
         var view = new ProductItemView({ model: product });
@@ -186,13 +232,13 @@ $(function () {
   var ClientItemView = Backbone.View.extend({
     tagName: "li",
     template: _.template(`
-  <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-    <div style="flex-grow: 1; color: #333;">
-      <strong style="font-size: 16px; color: #007bff;"><%- name %></strong><br>
-      <span style="font-size: 14px; color: #555;"><%- card %></span><br>
-      <span style="font-size: 14px; color: #555;"><%- address %></span>
+  <div class="client-item">
+    <div>
+      <strong><%- name %></strong><br>
+      <span><%- card %></span><br>
+      <span><%- address %></span>
     </div>
-    <button class="delete" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;">Delete</button>
+    <button class="delete">Delete</button>
   </div>
 `),
 
@@ -212,30 +258,30 @@ $(function () {
   });
 
   var ClientFormView = Backbone.View.extend({
-    el: "#app",
+    tagName: "div",
+    className: "page",
 
     template: _.template(`
-  <h2 style="text-align: center; color: #333; margin-top: 30px;">Add Client</h2>
-  <div style="background-color: #fff; width: 100%; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+  <div class="form-container">
+    <h2>Add Client</h2>
     <form>
-      <div style="margin-bottom: 15px;">
-        <label for="name" style="font-size: 14px; color: #555; display: block;">Name:</label>
-        <input type="text" id="name" placeholder="Enter client name" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter client name">
       </div>
-      <div style="margin-bottom: 15px;">
-        <label for="card" style="font-size: 14px; color: #555; display: block;">Card:</label>
-        <input type="text" id="card" placeholder="Enter card number" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+      <div class="form-group">
+        <label for="card">Card:</label>
+        <input type="text" id="card" placeholder="Enter card number">
       </div>
-      <div style="margin-bottom: 15px;">
-        <label for="address" style="font-size: 14px; color: #555; display: block;">Address:</label>
-        <input type="text" id="address" placeholder="Enter client address" style="width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+      <div class="form-group">
+        <label for="address">Address:</label>
+        <input type="text" id="address" placeholder="Enter client address">
       </div>
-      <button id="save" style="background-color: #28a745; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; width: 100%; cursor: pointer; transition: background-color 0.3s ease;">Save</button>
+      <button id="save">Save</button>
     </form>
-    <a href="#clients" style="display: inline-block; margin-top: 20px; text-align: center; color: #007bff; font-size: 14px; text-decoration: none;">Back</a>
+    <a href="#clients" class="back-link">Back</a>
   </div>
 `),
-
     events: {
       "click #save": "saveClient",
     },
@@ -249,6 +295,14 @@ $(function () {
     },
 
     saveClient: function (e) {
+      if (
+        !this.$("#name").val().trim() ||
+        !this.$("#card").val().trim() ||
+        !this.$("#address").val().trim()
+      ) {
+        alert("All fields are required!");
+        return;
+      }
       e.preventDefault();
       Clients.create({
         name: this.$("#name").val(),
@@ -261,7 +315,8 @@ $(function () {
   });
 
   var ClientListView = Backbone.View.extend({
-    el: "#app",
+    tagName: "div",
+    className: "page",
     initialize: function () {
       Clients.fetch();
       this.render();
@@ -282,6 +337,8 @@ $(function () {
 
       this.$el.html(html);
       var ul = this.$("#client-list");
+      ul.empty();
+
       Clients.each(function (client) {
         var view = new ClientItemView({ model: client });
         ul.append(view.render().el);
@@ -297,7 +354,8 @@ $(function () {
 
   //StoreDashboardd
   var StoreView = Backbone.View.extend({
-    el: "#app",
+    tagName: "div",
+    className: "page",
     initialize: function () {
       Products.fetch();
       this.render();
@@ -306,7 +364,6 @@ $(function () {
     render: function () {
       var html = `
     <div style="max-width: 900px; margin: 40px auto; padding: 30px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-      <h2 style="text-align: center; color: #333; font-size: 28px; margin-bottom: 30px;">Storefront</h2>
       <ul id="shop-products" style="list-style-type: none; padding: 0; margin: 0;">
         <!-- Product items will be appended here -->
       </ul>
@@ -315,35 +372,35 @@ $(function () {
 
       this.$el.html(html);
       var ul = this.$("#shop-products");
+      ul.empty();
 
       Products.each(function (product) {
         ul.append(`
-      <li style="display: flex; align-items: center; justify-content: space-between; background-color: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; align-items: center;">
-          <img src="${product.get(
-            "image"
-          )}" width="80" style="border-radius: 4px; margin-right: 15px;">
-          <div>
-            <strong style="font-size: 18px; color: #007bff;">${product.get(
-              "name"
-            )}</strong><br>
-            <span style="font-size: 16px; color: #555;">$${product.get(
-              "price"
-            )}</span>
-          </div>
-        </div>
-        <button class="buy" data-id="${
-          product.id
-        }" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;">
-          Buy
-        </button>
-      </li>
-    `);
+    <li class="shop-product-item">
+      <img src="${product.get("image")}">
+      <strong>${product.get("name")}</strong>
+      <span>${product.get("description")}</span>
+      <h3>₱${product.get("price")}</h3>
+      <button class="buy" data-id="${product.id}">Buy</button>
+    </li>
+  `);
       });
     },
   });
 
   //Router
+  var currentView = null;
+
+  function showView(view) {
+    if (currentView) currentView.remove();
+    currentView = view;
+
+    $("#app").html(view.el);
+    view.render();
+
+    return view;
+  }
+
   var AppRouter = Backbone.Router.extend({
     routes: {
       products: "products",
@@ -356,27 +413,28 @@ $(function () {
     },
 
     products: function () {
-      new ProductListView();
+      showView(new ProductListView());
     },
 
     clients: function () {
-      new ClientListView();
+      showView(new ClientListView());
     },
 
     shop: function () {
-      new StoreView();
+      showView(new StoreView());
     },
 
     addProduct: function () {
-      new ProductFormView();
+      showView(new ProductFormView());
     },
+
     editProduct: function (id) {
-      var product = Products.get(id);
-      new ProductFormView({ model: product });
+      var p = Products.get(id);
+      showView(new ProductFormView({ model: p }));
     },
 
     addClient: function () {
-      new ClientFormView();
+      showView(new ClientFormView());
     },
   });
 

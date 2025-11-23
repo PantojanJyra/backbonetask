@@ -132,3 +132,241 @@ nav a:hover {
 .button:hover {
   background-color: #c82333;
 }
+
+#product-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-item img {
+  width: 50px;
+  border-radius: 5px;
+  margin-right: 15px;
+}
+
+.product-item strong {
+  font-size: 16px;
+  color: #007bff;
+}
+
+.product-item span {
+  font-size: 14px;
+  color: #333;
+}
+
+.product-item .edit,
+.product-item .delete {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.product-item .edit {
+  background-color: #007bff;
+  color: white;
+  margin-right: 8px;
+}
+
+.product-item .edit:hover {
+  background-color: #0069d9;
+}
+
+.product-item .delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.product-item .delete:hover {
+  background-color: #c0392b;
+}
+
+#client-list {
+  list-style-type: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.client-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.client-item strong {
+  font-size: 16px;
+  color: #007bff;
+}
+
+.client-item span {
+  font-size: 14px;
+  color: #555;
+}
+
+.client-item .delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.client-item .delete:hover {
+  background-color: #c0392b;
+}
+
+#shop-products {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+}
+
+.shop-product-item {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.shop-product-item img {
+  width: 140px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.shop-product-item strong {
+  font-size: 20px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.shop-product-item span {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.shop-product-item h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.shop-product-item .buy {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+  transition: background-color 0.3s ease;
+}
+
+.shop-product-item .buy:hover {
+  background-color: #218838;
+}
+
+.form-container {
+  background-color: #fff;
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+  text-align: center;
+  color: #333;
+  margin-top: 30px;
+}
+
+.form-container form div.form-group {
+  margin-bottom: 15px;
+}
+input::placeholder,
+textarea::placeholder {
+  font-size: 14px;
+  color: #888;
+}
+
+.form-container label {
+  font-size: 14px;
+  color: #555;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.form-container button#save {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-container button#save:hover {
+  background-color: #218838;
+}
+
+.form-container a.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  text-align: center;
+  color: #007bff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.form-container a.back-link:hover {
+  text-decoration: underline;
+}
